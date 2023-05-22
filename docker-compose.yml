@@ -1,0 +1,39 @@
+version: '3'
+
+services:                       # list of all containers intend to use
+  get_tweets:                   # runs get_tweets - container
+    build: get_tweets/          # builds image from Dockerfile
+    volumes:
+    - ./get_tweets/:/app        # connects directories between computer and container
+    depends_on:
+    - mongodb                   # DB where tweets are at the beginning 
+    
+  mongodb:
+    image: mongo                # pulls the image from Docker Hub
+    ports:
+    - 27017:27017
+    
+  etl:                          # runs etl - container
+    build: etl/                 # creates an image
+    volumes:
+    - ./etl/:/app/              # connects directories between computer and container
+    depends_on:
+    - mongodb                   # DB from which tweets are extracted
+    - postgresdb                # DB into which transformed tweets are loaded
+    
+  postgresdb:                       
+    image: postgres             # image downloaded from Docker Hub
+    ports:
+    - 5556:5432                 
+    environment:                # sets environment variables
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_DB=twitter
+
+  slackbot:                     # runs slackbot - container
+    build: slackbot/            # builds image from Dockerfile
+    volumes:
+    - ./slackbot/:/app/         # connects directories between computer and container
+    depends_on:
+    - postgresdb                # DB with tweets
+    

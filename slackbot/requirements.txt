@@ -1,0 +1,7 @@
+slack
+psycopg2-binary
+psycopg2
+pymongo
+requests
+sqlalchemy
+slack_password
